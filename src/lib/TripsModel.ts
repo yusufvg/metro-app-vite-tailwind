@@ -1,6 +1,7 @@
 class TripsModel {
   trips: Array<Trip> = [];
-  private _nextId: number = 0;
+  private _nextId: number = 1;
+  private _hasPass: boolean = false;
 
   addTrip(trip: Trip) {
     this.trips.push(trip);
@@ -30,12 +31,15 @@ class TripsModel {
     if (this.trips.length == 0)
       return "In order to calculate the best pass, please log some trips.";
 
-    let regularPrice = this.trips.reduce((sum, trip) => (sum += trip.fare), 0);
+    let regularPrice = this.activeTrips.reduce(
+      (sum, trip) => (sum += trip.fare),
+      0
+    );
     let bestSavings = 0;
-    let bestPass = 0;
+    let bestPassPrice = 0;
 
     for (let pass = 2; pass <= 6; pass += 0.25) {
-      let reducedFares = this.trips.reduce(
+      let reducedFares = this.activeTrips.reduce(
         (sum, trip) => (sum += Math.max(0, trip.fare - pass)),
         0
       );
@@ -44,21 +48,35 @@ class TripsModel {
       let savings = regularPrice - reducedFares - passCost;
       if (savings > bestSavings) {
         bestSavings = savings;
-        bestPass = pass;
+        bestPassPrice = pass;
       }
     }
 
-    return bestPass === 0
+    this._hasPass = bestPassPrice != 0;
+
+    return !this._hasPass
       ? "It is currently cheaper to ride without buying a pass."
       : "You should buy the $" +
-          bestPass +
+          bestPassPrice +
           " pass, it will save you $" +
           bestSavings +
           " on fares.";
   }
 
-  get nextId() {
+  get nextId(): number {
     return this._nextId++;
+  }
+
+  get hasPass(): boolean {
+    return this._hasPass;
+  }
+
+  get activeTrips(): Array<Trip> {
+    return this.trips.filter((trip) => !trip.hidden);
+  }
+
+  get hiddenTrips(): Array<Trip> {
+    return this.trips.filter((trip) => trip.hidden);
   }
 }
 
@@ -73,7 +91,7 @@ class Trip {
     this.id = id;
     this.date = date;
     this.fare = fare;
-    this.note = note.length > 0 ? note : "-";
+    this.note = note.length > 0 ? note : "---";
   }
 }
 
