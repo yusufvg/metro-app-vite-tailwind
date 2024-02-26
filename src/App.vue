@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import TestPanel from "./components/TestPanel.vue";
+import TripsPanel from "./components/ui/trips_panel/TripsPanel.vue";
 </script>
 
 <template>
-  <TestPanel />
+  <TripsPanel />
 </template>
 
 <style scoped>
