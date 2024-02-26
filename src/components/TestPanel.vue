@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// import "@/assets/index.css";
 import { TestModel } from "@/lib/TestModel";
 import { computed, ref } from "vue";
 
